@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roleta da Sorte (Ou não)</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #2c3e50;
+            font-family: sans-serif;
+            color: white;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        .wheel-container::before {
+            content: "▼";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            color: #e74c3c;
+            z-index: 10;
+        }
+
+        canvas {
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: transform 5s cubic-bezier(0.1, 0, 0.2, 1);
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #2ecc71;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Quem será o sorteado?</h1>
+    
+    <div class="wheel-container">
+        <canvas id="wheel" width="400" height="400"></canvas>
+    </div>
+
+    <button onclick="spin()">Girar Roleta!</button>
+
+    <script>
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const names = [
+            "Daniel", "Matheus", "Kael", "Hugo", "Eduardo", "Maria",
+            "José", "Ana", "Emanuelle", "Gabriel", "Elis", "Murilo",
+            "Catarina", "André", "Melissa", "Lucas", "Gabrielli", "Leandro"
+        ];
+        
+        const size = names.length;
+        const sliceDeg = 360 / size;
+        const targetIndex = 6; // ÍNDICE DO NOME QUE SEMPRE GANHA (Começa do 0)
+        let currentRotation = 0;
+
+        function drawWheel() {
+            names.forEach((name, i) => {
+                const angle = (i * sliceDeg) * Math.PI / 180;
+                ctx.beginPath();
+                ctx.fillStyle = i % 2 === 0 ? '#ecf0f1' : '#bdc3c7';
+                ctx.moveTo(200, 200);
+                ctx.arc(200, 200, 200, angle, angle + (sliceDeg * Math.PI / 180));
+                ctx.fill();
+
+                ctx.save();
+                ctx.translate(200, 200);
+                ctx.rotate(angle + (sliceDeg * Math.PI / 180) / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#333";
+                ctx.font = "bold 14px sans-serif";
+                ctx.fillText(name, 180, 5);
+                ctx.restore();
+            });
+        }
+
+        function spin() {
+           
+            const extraVoltas = 5 * 360; 
+            const itemCenter = (targetIndex * sliceDeg) + (sliceDeg / 2);
+            const stopAngle = 360 - itemCenter + 270; 
+            
+            currentRotation += extraVoltas + (stopAngle - (currentRotation % 360));
+            
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+        }
+
+        drawWheel();
+    </script>
+</body>
+</html>
