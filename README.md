@@ -11,7 +11,7 @@ Uma roleta da sorte moderna e elegante, desenvolvida com **HTML5 Canvas** e **CS
 
 ## ✨ Demonstração
 Acesse a versão live aqui:  
-🚀 **[Link para o seu GitHub Pages aqui]**
+🚀 https://leandrofilipy.github.io/roleta-malandra/
 
 ---
 
