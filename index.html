@@ -24,7 +24,6 @@
             color: white;
         }
 
-        /* Contador no Topo */
         #total-counter {
             position: absolute;
             top: 20px;
@@ -66,7 +65,6 @@
             flex-direction: column;
         }
 
-        /* Área de Adicionar Nomes */
         .add-name-box {
             display: flex;
             gap: 5px;
@@ -280,7 +278,6 @@
             }
         }
 
-        // Permite adicionar nome ao apertar "Enter"
         nameInput.addEventListener("keypress", (e) => {
             if (e.key === "Enter") addNewName();
         });
@@ -314,7 +311,7 @@
         }
 
         function removeName(index) {
-            if (names[index].toLowerCase() === 'josé') return;
+            // AGORA É POSSÍVEL REMOVER O JOSÉ
             names.splice(index, 1);
             updateUI();
         }
@@ -330,6 +327,8 @@
             let targetIndex;
             const joseIndex = names.findIndex(n => n.toLowerCase() === 'josé');
             
+            // Se o José estiver na lista, ele tem 70% de chance.
+            // Se ele for removido, o sorteio fica 100% normal (aleatório).
             if (joseIndex !== -1 && Math.random() < 0.7) { 
                 targetIndex = joseIndex;
             } else {
