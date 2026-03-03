@@ -1,3 +1,5 @@
+Versão 1.1.2
+
 # 🎡 Roleta Premium Interativa 🎰
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/seu-usuario/nome-do-repo?color=6c5ce7&style=for-the-badge)
