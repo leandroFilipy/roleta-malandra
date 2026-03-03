@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roleta da Sorte 50/50 - Corrigida</title>
+    <title>Roleta da Sorte - Customizada</title>
     <style>
         :root {
             --primary: #6c5ce7;
             --secondary: #a29bfe;
             --bg: #0f0c29;
             --accent: #ff7675;
+            --success: #00b894;
         }
 
         body {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
@@ -22,19 +22,121 @@
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             font-family: 'Segoe UI', sans-serif;
             color: white;
-            overflow: hidden;
+        }
+
+        /* Contador no Topo */
+        #total-counter {
+            position: absolute;
+            top: 20px;
+            font-size: 1.2rem;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 25px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .main-wrapper {
+            display: flex;
+            gap: 30px;
+            max-width: 1100px;
+            width: 95%;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 60px;
         }
 
         .container {
-            position: relative;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(15px);
-            padding: 40px;
+            padding: 30px;
             border-radius: 30px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
             text-align: center;
         }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 20px;
+            width: 300px;
+            max-height: 580px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Área de Adicionar Nomes */
+        .add-name-box {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .add-name-box input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .add-name-box button {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .name-list { 
+            list-style: none; 
+            padding: 0; 
+            overflow-y: auto; 
+            flex: 1;
+        }
+
+        .name-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.08);
+            margin-bottom: 8px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+
+        .score-badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .btn-remove {
+            background: rgba(255, 118, 117, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-remove:hover { background: var(--accent); color: white; }
 
         .wheel-container {
             position: relative;
@@ -46,9 +148,7 @@
         .wheel-container::before {
             content: "";
             position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: -15px; left: 50%; transform: translateX(-50%);
             width: 0; height: 0; 
             border-left: 20px solid transparent;
             border-right: 20px solid transparent;
@@ -62,7 +162,7 @@
             transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
         }
 
-        button {
+        button#spinBtn {
             padding: 15px 50px;
             font-size: 1.1rem;
             font-weight: bold;
@@ -71,10 +171,7 @@
             color: white;
             border: none;
             border-radius: 50px;
-            transition: 0.3s;
         }
-
-        button:disabled { opacity: 0.5; }
 
         #winner-overlay {
             position: fixed;
@@ -95,24 +192,40 @@
             text-align: center;
         }
 
-        .winner-card .name { font-size: 3.5rem; font-weight: 900; color: var(--primary); }
+        .winner-card .name { font-size: 3.5rem; font-weight: 900; color: var(--primary); margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Sorteio Especial</h1>
-        <div class="wheel-container">
-            <canvas id="wheel" width="400" height="400"></canvas>
+    <div id="total-counter">Total de nomes: <span id="countNumber">0</span></div>
+
+    <div class="main-wrapper">
+        <div class="sidebar">
+            <h3>Gerenciar Nomes</h3>
+            
+            <div class="add-name-box">
+                <input type="text" id="newNameInput" placeholder="Digite um nome...">
+                <button onclick="addNewName()">+</button>
+            </div>
+
+            <div id="nameList" class="name-list"></div>
         </div>
-        <button id="spinBtn" onclick="spin()">Girar Roleta!</button>
+
+        <div class="container">
+            <h1>Sorteio Especial</h1>
+            <div class="wheel-container">
+                <canvas id="wheel" width="400" height="400"></canvas>
+            </div>
+            <button id="spinBtn" onclick="spin()">Girar Roleta!</button>
+        </div>
     </div>
 
     <div id="winner-overlay" onclick="closeWinner()">
         <div class="winner-card">
             <h2>🏆 O sorteado foi:</h2>
             <div class="name" id="winnerName"></div>
-            <p>Clique para fechar</p>
+            <div id="winStats" style="font-weight:bold; color:#666"></div>
+            <p style="margin-top: 20px;">Clique para fechar</p>
         </div>
     </div>
 
@@ -120,18 +233,67 @@
         const canvas = document.getElementById('wheel');
         const ctx = canvas.getContext('2d');
         const spinBtn = document.getElementById('spinBtn');
+        const listContainer = document.getElementById('nameList');
+        const countDisplay = document.getElementById('countNumber');
+        const nameInput = document.getElementById('newNameInput');
         
-        const names = [
+        let names = [
             "Daniel", "Matheus", "Kael", "Hugo", "Eduardo", "Maria",
             "José", "Ana", "Emanuelle", "Gabriel", "Elis", "Murilo",
             "Catarina", "André", "Melissa", "Lucas", "Gabrielli", "Leandro"
         ];
+
+        let winCount = {};
         
-        const size = names.length;
-        const sliceDeg = 360 / size;
-        let currentRotation = 0;
+        function initWinCount() {
+            names.forEach(name => {
+                if (winCount[name] === undefined) winCount[name] = 0;
+            });
+        }
+
+        function updateUI() {
+            initWinCount();
+            listContainer.innerHTML = '';
+            countDisplay.innerText = names.length;
+
+            names.forEach((name, index) => {
+                const item = document.createElement('div');
+                item.className = 'name-item';
+                item.innerHTML = `
+                    <div style="display:flex; align-items:center;">
+                        <span>${name}</span>
+                        ${winCount[name] > 0 ? `<span class="score-badge">${winCount[name]}x</span>` : ''}
+                    </div>
+                    <button class="btn-remove" onclick="removeName(${index})">X</button>
+                `;
+                listContainer.appendChild(item);
+            });
+            drawWheel();
+        }
+
+        function addNewName() {
+            const val = nameInput.value.trim();
+            if (val !== "") {
+                names.push(val);
+                nameInput.value = "";
+                updateUI();
+            }
+        }
+
+        // Permite adicionar nome ao apertar "Enter"
+        nameInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") addNewName();
+        });
 
         function drawWheel() {
+            const size = names.length;
+            if (size === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+            const sliceDeg = 360 / size;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
             names.forEach((name, i) => {
                 const angle = (i * sliceDeg) * Math.PI / 180;
                 ctx.beginPath();
@@ -145,44 +307,53 @@
                 ctx.rotate(angle + (sliceDeg / 2) * Math.PI / 180);
                 ctx.textAlign = "right";
                 ctx.fillStyle = "#2d3436";
-                ctx.font = "bold 14px sans-serif";
+                ctx.font = size > 25 ? "bold 9px sans-serif" : "bold 13px sans-serif";
                 ctx.fillText(name, 185, 5);
                 ctx.restore();
             });
         }
 
+        function removeName(index) {
+            if (names[index].toLowerCase() === 'josé') return;
+            names.splice(index, 1);
+            updateUI();
+        }
+
+        let currentRotation = 0;
         function spin() {
+            if (names.length === 0) return;
             spinBtn.disabled = true;
 
+            const size = names.length;
+            const sliceDeg = 360 / size;
+            
             let targetIndex;
-            const joseIndex = 6; 
-            if (Math.random() < 0.7) { 
+            const joseIndex = names.findIndex(n => n.toLowerCase() === 'josé');
+            
+            if (joseIndex !== -1 && Math.random() < 0.7) { 
                 targetIndex = joseIndex;
             } else {
-                do {
-                    targetIndex = Math.floor(Math.random() * size);
-                } while (targetIndex === joseIndex);
+                targetIndex = Math.floor(Math.random() * size);
             }
 
-            const voltasExtras = 360 * 8; 
-            
-            
+            const voltasExtras = 360 * 10; 
             const targetAngle = (360 - (targetIndex * sliceDeg)) - (sliceDeg / 2);
-            
-         
             const finalRotation = voltasExtras + targetAngle + 270;
             
             currentRotation += (finalRotation - (currentRotation % 360));
-            
             canvas.style.transform = `rotate(${currentRotation}deg)`;
 
             setTimeout(() => {
-                showWinner(names[targetIndex]);
+                const winner = names[targetIndex];
+                winCount[winner]++;
+                showWinner(winner);
+                updateUI();
             }, 5100);
         }
 
         function showWinner(name) {
             document.getElementById('winnerName').innerText = name;
+            document.getElementById('winStats').innerText = `Já ganhou ${winCount[name]} vez(es)!`;
             document.getElementById('winner-overlay').style.display = 'flex';
         }
 
@@ -191,7 +362,7 @@
             spinBtn.disabled = false;
         }
 
-        drawWheel();
+        updateUI();
     </script>
 </body>
 </html>
